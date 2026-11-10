@@ -1,0 +1,14 @@
+1. duplicadas apagadas: 86
+2. ACOPLADOR1/2: placa 6 mm, cubo Ø28->Ø22 x 16.5 mm, furo D com 20 mm, trava M3, furos Ø3,4
+   acopladores centrados nos eixos: ACOPLADOR1 0.10 mm, ACOPLADOR2 0.11 mm
+   ACOPLADOR1 x MANCAL DEC: 37.0 mm3 -> afastado 0.03 mm
+3. conjunto DEC afastado 13.52 mm ao longo do RA; tubo afastado 12.88 mm ao longo do DEC (folga 2.0 mm)
+4. SELA_DEC (impressa) + BARRA_VIXEN_200 (comprada); a SAPATA assenta na barra (tubo subiu 25.0 mm)
+5. EIXO RA +12.5 mm (total 178.0 mm), EIXO DEC +12.5 mm (total 178.0 mm); face plana de 0,5 mm nos ultimos 21 mm
+7. DEC: conjunto 1740 g; tubo deslizado na sela, SAPATA a +38.8 mm do eixo DEC ao longo do tubo; sobra 0.12 mm (0.002 N.m)
+   RA: conjunto 2947 g; contrapeso (copo+tampa+porcas+enchimento) 404 g a 331 mm do cruzamento; enchimento 321 g de esferas de aco (copo cheio: ~836 g); sobra 0.05 mm
+8. ACOPLADOR3 x MANCAL RA: 835 mm3 -> afastado 0.66 mm
+   latitude: 27.00 -> 28.50 graus (giro de -1.50 no pivo da BASE)
+9. BASE: vao das bochechas 10,5 mm, furo Ø5,2 para rosca 1/4"-20; tripe girado 60 graus
+salvo: C:\LUIZ\PROJECTS\GOTO_TELESCOPE\FREECAD\MONTAGEM_EQ\MONTAGEM_EQ_V3.FCStd
+STLs em C:\LUIZ\PROJECTS\GOTO_TELESCOPE\FREECAD\MONTAGEM_EQ\STL_V3

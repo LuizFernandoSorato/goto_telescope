@@ -1,0 +1,6 @@
+# Arquivos de CAD: binarios ou grandes demais para diff de texto
+*.FCStd binary
+*.stl    binary
+*.step   -diff
+*.stp    -diff
+*.png    binary

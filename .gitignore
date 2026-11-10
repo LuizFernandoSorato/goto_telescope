@@ -1,0 +1,10 @@
+# Backups automaticos do FreeCAD
+*.FCBak
+*.FCStd1
+
+# Copias manuais de seguranca (o historico do git ja faz esse papel)
+_backup_*/
+
+# Python
+__pycache__/
+*.pyc
