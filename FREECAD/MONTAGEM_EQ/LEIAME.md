@@ -1,6 +1,101 @@
 # Montagem equatorial impressa (GEM) — Greika 70070 + redutores 1024:1
 
-## Revisão 3 — `MONTAGEM_EQ_V3.FCStd` (atual)
+## V4 reforçada — refletor 203 mm f/1600 (`MONTAGEM_EQ_V4.FCStd`)
+Montagem nova, feita para o refletor do projeto TELESCOPE (~8,7 kg, com o tubo de 1,58 m). A V3 continua sendo a montagem da Greika e não foi alterada: a V4 só lê o refletor de dentro dela.
+- `scripts/v4_modelo.py`: parâmetros e geometria de todas as peças. As massas e o refletor também estão aqui.
+- `scripts/build_v4.py`: gera o `.FCStd`, os STLs em `STL_V4/` e um relatório. Rode **pela interface**, para as cores serem salvas; o FreeCAD fecha sozinho no fim. Leva ~2 min. Se a V4 já existir, a versão anterior vai para `_backup_v4/`.
+- `scripts/verifica_v4.py`: interferências, equilíbrio, eixos, dentes, inércia e colisões girando RA e DEC. Leva ~5 min.
+
+```
+& "C:\Program Files\FreeCAD 1.0\bin\freecad.exe" scripts\build_v4.py
+& "C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe" scripts\verifica_v4.py
+```
+Os relatórios saem em `%TEMP%\build_v4.log` e `%TEMP%\verifica_v4.log`. Para gravar em outro lugar, use `$env:V4_LOG`.
+
+### Como é
+| Parte | V4 |
+|---|---|
+| Motor | NEMA23 57 × 56 (1,26 N·m), um por eixo |
+| Redução | planetário de 4 estágios 12/12/36 (4:1 cada, 256:1), módulo 1,25, largura 10, pinos de aço Ø6, seguido de pinhão 20T + coroa 200T **helicoidais** (mn 0,8, β 15°, largura 18, entre eixos 91,15 mm). Total **2560:1** |
+| Eixos | aço Ø20 × 230 mm, em 2 rolamentos 6004 afastados 192 mm. A coroa é presa num flange de alumínio para eixo de 20 mm |
+| Módulo de eixo (igual no RA e no DEC) | câmara da coroa Ø192 com tampa, tubo de rolamentos Ø70 com 4 nervuras e flange de 20 mm na cabeça. O redutor fica embaixo da tampa, com o motor para fora |
+| RA × DEC | o bloco do DEC (80 mm) aparafusa no flange da cabeça do RA com 4 M5 |
+| Tubo | sela Losmandy impressa, alta (36 mm), sobre o flange do DEC. Barra Losmandy de **380 mm**, anéis Ø256 a 360 mm um do outro. O eixo do tubo fica a 283 mm do cruzamento dos eixos |
+| Contrapeso | capa na tampa da câmara DEC (6 M5) + barra Ø20 × 450 com ponta M12. Um peso de **5 kg** a 393 mm do cruzamento equilibra |
+| Base | placa de alumínio 10 mm (335 × 280), garfo impresso com pivô M10 e torre com parafuso M10 empurrando o apoio do RA (latitude 28,5°). O furo 3/8" do tripé fica 185 mm ao sul do pivô, debaixo do centro de massa |
+
+Ainda não modelados: tripé ou coluna (fica para depois), a faixa do ajuste de latitude e a fiação.
+
+### Verificação (`verifica_v4.py`)
+- **Interferências:** nenhuma. Os únicos contatos são os pinos de aço, que entram 0,05 mm apertados nos porta-planetas, de propósito.
+- **Massas estimadas:**
+  - Total 29,3 kg: 6,1 kg fixos, 10,6 kg giram no RA e 12,6 kg giram no DEC.
+  - Os 12,6 kg do DEC são o tubo com espelhos, a sela, a barra e os anéis.
+- **Equilíbrio:**
+  - Ao longo do tubo e no lado do contrapeso, fica zerado.
+  - Sobram **1,3 N·m** nos dois eixos, porque a focalizadora e a ocular ficam ~14 mm de lado. Veja abaixo como tirar.
+- **Eixos Ø20:**
+  - DEC com o tubo na horizontal: 22 N·m, 28 MPa.
+  - RA: 21 N·m, 27 MPa.
+  - Rolamentos 6004: no máximo 309 N, contra 5000 N de capacidade.
+  - Tudo com folga grande.
+- **Dentes:**
+  - O ponto fraco é o pinhão 20T em PETG.
+  - Com 20 MPa admissíveis (fadiga, conservador), aguenta **~7,6 N·m no eixo**.
+  - Desbalanceamento de 1,3 N·m mais vento e aceleração (0,07 N·m) ficam bem abaixo.
+- **Velocidade:**
+  - Motor a 600 rpm → 1,4 °/s (180° em ~2 min).
+  - Acompanhamento sideral: 1,78 rpm no motor.
+  - Cada passo inteiro move 2,5″ no céu.
+- **Colisões** (passo de 15°, RA −135° a +135°, DEC volta inteira):
+  - O corpo do DEC e o contrapeso nunca batem na base.
+  - O tubo nunca bate no corpo do DEC nem no contrapeso.
+  - **RA livre com qualquer DEC até ±90°**, que é o meridiano, com o contrapeso na horizontal.
+  - A ±95°, o tubo apontando a 73–85° de altura já encosta na placa de base. Passando disso, encosta na placa e no garfo.
+  - **Limite no firmware: RA ±90°.** O meridian flip tem que ser feito no meridiano, sem acompanhar além dele.
+- **Altura:**
+  - Apontando acima do horizonte, o fundo do tubo desce até **~490 mm abaixo da placa de base**.
+  - O tripé, ou a coluna, tem que deixar esse espaço livre em volta da cabeça. Use extensão de tripé ou coluna de pelo menos ~500 mm.
+
+### Na prática
+1. **Corrente do motor:** com 2560:1, o NEMA23 travado tem força para quebrar qualquer dente impresso. Bastam ~0,005 N·m no motor para os 7,6 N·m do eixo. Ajuste a corrente do driver para o mínimo que ainda move a montagem com folga.
+2. **DEC:** com o tubo na horizontal, deslize a barra Losmandy na sela até o tubo ficar parado.
+3. **RA:** com o DEC na horizontal, ajuste o peso de 5 kg na barra até o conjunto ficar parado.
+4. **Desbalanceamento lateral (1,3 N·m):** gire o tubo nos anéis até a focalizadora apontar para longe da sela, no estacionamento. Fica mais equilibrado. Se a ocular ficar desconfortável, compense com ~0,3 kg do lado oposto do tubo.
+5. **Engrenamento:** a distância entre o pinhão e a coroa é fixada pelos furos do teto da câmara (608) e da tampa do redutor. Se ficar duro, aumente `A_H` em 0,05–0,1 mm no `v4_modelo.py` e reimprima a tampa da câmara, o corpo e a tampa do redutor.
+
+### Lista de compras da V4
+| Item | Qtd | Uso |
+|---|---|---|
+| Motor NEMA23 57 × 56 mm (~1,26 N·m) + driver com controle de corrente (TMC2209/TMC5160) | 2 | RA e DEC |
+| Eixo de aço Ø20 × 230 mm (retificado ou 1045) | 2 | eixos RA e DEC |
+| Rolamento 6004 (20 × 42 × 12) | 4 | 2 por eixo |
+| Flange de eixo 20 mm em alumínio (prato Ø60, cubo Ø36, 4 furos Ø5,5 em Ø46) | 4 | coroa e cabeça de cada eixo. Se o furo for diferente, ajuste `PCD_FLANGE` |
+| Rolamento 608 | 6 | 3 por pinhão |
+| Eixo de aço Ø8 × 100 mm | 2 | eixo do pinhão. Faça uma face plana para o porta-planetas de saída |
+| Pino de aço Ø6 × 14,5 (ou pino-guia 6 × 14) | 24 | planetas |
+| Barra roscada M5 × 92 mm + porcas | 8 | caixa do redutor |
+| Barra de contrapeso Ø20 × 450 mm com ponta roscada M12 + luva M12 | 1 | contrapeso |
+| Contrapeso 5 kg com furo de 20 mm | 1 | 393 mm do cruzamento dos eixos |
+| Barra Losmandy 380 mm (ou cortar uma maior) + par de anéis Ø256 | 1 | tubo |
+| Manípulo M8 + inserto M8 | 2 | aperto da sela |
+| Placa de alumínio 10 mm, 335 × 280 mm, com rosca 3/8"-16 a 185 mm ao sul do pivô | 1 | base |
+| Parafuso M10 × 45 + inserto M10 | 2 | pivô de latitude |
+| Parafuso M10 × 100 + porca M10 | 1 | ajuste de latitude |
+| Insertos M4 (16), M5 (~26), parafusos M4 e M5 variados, M6 para o garfo na placa (8) | — | tampas, redutores, bloco DEC, capa do contrapeso, sela |
+
+### Impressão (STL_V4)
+- O nome de cada STL termina com a quantidade (`_x2`, `_x24`...). Todos saem com a base em z = 0, na orientação do modelo.
+- **Engrenagens** (`PLANETA`, `SOL_MOTOR`, `PORTA_PLANETAS`, `SAIDA_REDUTOR`, `PINHAO_20T`, `COROA_200T`), `ESPACADOR_20` e `CAPA_CONTRAPESO`: PETG com **100% de preenchimento**.
+- **Estrutura** (`CORPO_RA`, `CORPO_DEC`, tampas, garfo, torre, sela): **6 paredes, 50% gyroid**.
+- Estimativa: **~6,3 kg de PETG**.
+- Imprima um par pinhão + coroa de teste antes do resto. As helicoidais saem de um loft de 3 seções: confira o encaixe.
+
+### Limitações
+- As massas são estimadas. Os espelhos (2 kg + 60 g) e a ocular com buscadora (600 g) entram como massas pontuais. Pese as peças e ajuste `MASSAS_REFLETOR` e as densidades no `v4_modelo.py`.
+- A capa do contrapeso é impressa e recebe até 15 N·m. Se der para fazer em alumínio, prefira.
+
+## Revisão 3 — `MONTAGEM_EQ_V3.FCStd` (Greika 70070)
 É a montagem que você desenhou na V2: dois redutores V2 com saída por polias, com o EIXO Ø8 servindo de eixo RA e de eixo DEC. As correções foram aplicadas por script, e a V2 não foi alterada.
 - `scripts/revisao3.py` gera a V3 a partir da V2. A latitude é `$env:LAT = "28.5"` e a barra do contrapeso é `$env:L_BARRA_CW = "250"`. Ele grava também os STLs em `STL_V3/` e o resumo em `scripts/revisao3_relatorio.txt`.
 - `scripts/verifica_v3.py` confere interferências, folgas, balanceamento, cargas e colisões girando RA e DEC. Leva ~8 min.
